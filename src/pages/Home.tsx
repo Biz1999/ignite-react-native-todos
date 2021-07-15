@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Alert } from 'react-native';
 
 import { Header } from '../components/Header';
 import { Task, TasksList } from '../components/TasksList';
@@ -29,6 +29,9 @@ export function Home() {
     setTasks(updatedTasks);
   }
 
+  function handleAlertResponse(id: number){
+
+  }
   function handleRemoveTask(id: number) {
     setTasks(oldState => oldState
       .filter(task =>

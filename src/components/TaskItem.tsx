@@ -12,30 +12,38 @@ import { Task } from './TasksList';
 import Icon from 'react-native-vector-icons/Feather';
 import trashIcon from '../assets/icons/trash/trash.png';
 
-export function TaskItem(item: Task, index: number) {
+type TaskItemProps = {
+  item: Task;
+  index: number;
+  toggleTaskDone: (id: number) => void;
+  removeTask: (id: number) => void;
+  editTask: (id: number, title: string) => void;
+}
+
+export function TaskItem(props: TaskItemProps) {
   const [isEdit, setIsEdit] = useState(false);
-  const [newTitle, setNewTitle] = useState(item.title);
+  const [newTitle, setNewTitle] = useState(props.item.title);
   const textInputRef = useRef<TextInput>(null)
 
   return (
     <>
       <View>
         <TouchableOpacity
-          testID={`button-${index}`}
+          testID={`button-${props.index}`}
           activeOpacity={0.7}
           style={styles.taskButton}
-          onPress={() => toggleTaskDone(item.id)}
+          onPress={() => props.toggleTaskDone(props.item.id)}
         >
           <View
-            testID={`marker-${index}`}
-            style={!(item.done)
+            testID={`marker-${props.index}`}
+            style={!(props.item.done)
               ?
               styles.taskMarker
               :
               styles.taskMarkerDone
             }
           >
-            {item.done && (
+            {props.item.done && (
               <Icon
                 name="check"
                 size={12}
@@ -45,22 +53,22 @@ export function TaskItem(item: Task, index: number) {
           </View>
 
           <Text
-            style={!(item.done)
+            style={!(props.item.done)
               ?
               styles.taskText
               :
               styles.taskTextDone
             }
           >
-            {item.title}
+            {props.item.title}
           </Text>
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity
-        testID={`trash-${index}`}
+        testID={`trash-${props.index}`}
         style={{ paddingHorizontal: 24 }}
-        onPress={() => removeTask(item.id)}
+        onPress={() => props.removeTask(props.item.id)}
       >
         <Image source={trashIcon} />
       </TouchableOpacity>
