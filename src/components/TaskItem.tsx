@@ -76,17 +76,6 @@ export function TaskItem(props: TaskItemProps) {
               />
             )}
           </View>
-
-          {/* <Text
-            style={!(props.item.done)
-              ?
-              styles.taskText
-              :
-              styles.taskTextDone
-            }
-          >
-            {props.item.title}
-          </Text> */}
           <TextInput
             value={newTitle}
             onChangeText={setNewTitle}
