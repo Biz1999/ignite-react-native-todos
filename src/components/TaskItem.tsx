@@ -1,9 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
   Image,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View
@@ -11,23 +10,49 @@ import {
 import { Task } from './TasksList';
 import Icon from 'react-native-vector-icons/Feather';
 import trashIcon from '../assets/icons/trash/trash.png';
+import editIcon from '../assets/icons/pen/edit.png';
+import { EditTaskProps } from '../pages/Home';
 
 type TaskItemProps = {
   item: Task;
   index: number;
   toggleTaskDone: (id: number) => void;
   removeTask: (id: number) => void;
-  editTask: (id: number, title: string) => void;
+  editTask: ({ taskId, taskTitle }: EditTaskProps) => void;
 }
 
 export function TaskItem(props: TaskItemProps) {
   const [isEdit, setIsEdit] = useState(false);
   const [newTitle, setNewTitle] = useState(props.item.title);
-  const textInputRef = useRef<TextInput>(null)
+  const textInputRef = useRef<TextInput>(null);
+
+  function handleStartEditing() {
+    setIsEdit(true);
+  }
+
+  function handleCancelEditing() {
+    setNewTitle(props.item.title);
+    setIsEdit(false);
+  }
+
+  function handleSubmitEdit() {
+    props.editTask({ taskId: props.item.id, taskTitle: newTitle });
+    setIsEdit(false);
+  }
+
+  useEffect(() => {
+    if (textInputRef.current) {
+      if (isEdit) {
+        textInputRef.current.focus();
+      } else {
+        textInputRef.current.blur();
+      }
+    }
+  }, [isEdit])
 
   return (
-    <>
-      <View>
+    <View style={styles.container}>
+      <View style={styles.infoContainer}>
         <TouchableOpacity
           testID={`button-${props.index}`}
           activeOpacity={0.7}
@@ -52,7 +77,7 @@ export function TaskItem(props: TaskItemProps) {
             )}
           </View>
 
-          <Text
+          {/* <Text
             style={!(props.item.done)
               ?
               styles.taskText
@@ -61,26 +86,67 @@ export function TaskItem(props: TaskItemProps) {
             }
           >
             {props.item.title}
-          </Text>
+          </Text> */}
+          <TextInput
+            value={newTitle}
+            onChangeText={setNewTitle}
+            editable={isEdit}
+            onSubmitEditing={handleSubmitEdit}
+            style={!(props.item.done)
+              ?
+              styles.taskText
+              :
+              styles.taskTextDone
+            }
+            ref={textInputRef}
+          />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        testID={`trash-${props.index}`}
-        style={{ paddingHorizontal: 24 }}
-        onPress={() => props.removeTask(props.item.id)}
-      >
-        <Image source={trashIcon} />
-      </TouchableOpacity>
-    </>
+      <View style={styles.iconsContainer}>
+        {isEdit ?
+          (
+            <TouchableOpacity
+              onPress={handleCancelEditing}
+            >
+              <Icon name="x" size={24} color="#b2b2b2" />
+            </TouchableOpacity>
+          )
+          :
+          (
+            <TouchableOpacity
+              onPress={handleStartEditing}
+            >
+              <Image source={editIcon} />
+            </TouchableOpacity>
+          )
+        }
+        <View style={styles.iconsDivider} />
+        <TouchableOpacity
+          testID={`trash-${props.index}`}
+          onPress={() => props.removeTask(props.item.id)}
+          disabled={isEdit}
+        >
+          <Image source={trashIcon} style={{ opacity: isEdit ? 0.1 : 1 }} />
+        </TouchableOpacity>
+      </View>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  infoContainer: {
+    flex: 1,
+  },
   taskButton: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingVertical: 15,
     marginBottom: 4,
     borderRadius: 4,
     flexDirection: 'row',
@@ -113,5 +179,17 @@ const styles = StyleSheet.create({
     color: '#1DB863',
     textDecorationLine: 'line-through',
     fontFamily: 'Inter-Medium'
+  },
+  iconsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 24,
+    paddingLeft: 12,
+  },
+  iconsDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: 'rgba(196, 196, 196, 0.24)',
+    marginHorizontal: 12
   }
 })
